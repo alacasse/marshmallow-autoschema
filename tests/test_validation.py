@@ -49,15 +49,16 @@ class A:
 def test_custom_field():
     a = A(target="http://example.com/")
 
-    data, errors = a.dump()
+    data = a.dump()
     assert data == {"target": "http://example.com/"}
 
 
 def test_custom_field_fails_validation():
-    a = A(target="example.com/")
-
-    data, errors = a.dump(strict=False)
-    assert errors == {"target": ["Not a valid URL."]}
+    try:
+        a = A(target="example.com/")
+    except ValidationError as err:
+        errors = err.messages
+        assert errors == {"target": ["Not a valid URL."]}
 
 
 @validate_field('popularity', Range(1, 10))
@@ -75,5 +76,5 @@ class MyPageRank:
 def test_load_validation():
     MyPageRank(popularity=5, links=['http://www.foo.com']).dump()
     tampered_record = {'popularity': 1, 'links': ['1337']}
-    with raises(ValidationError):
-        MyPageRank.load(tampered_record)
+    with raises(TypeError):
+        assert MyPageRank.load(tampered_record)

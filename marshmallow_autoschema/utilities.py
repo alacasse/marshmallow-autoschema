@@ -34,5 +34,5 @@ class FactorySchema(Schema):
     """
 
     @post_load
-    def make(self, data):
+    def make(self, data, **kwargs):
         return self.__model__(**data)

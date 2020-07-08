@@ -245,8 +245,7 @@ class schema_metafactory:
             default=(fspec.default or missing),
             many=check_type(fspec.annotation, Many, List),
             required=fspec.required,
-            load_from=load_dump_to,
-            dump_to=load_dump_to,
+            data_key=load_dump_to,
             allow_none=fspec.allow_none,
         )
 
@@ -361,13 +360,13 @@ class schema_metafactory:
         def model_dump(model_self, *args, **kwargs):
             strict = kwargs.pop('strict', True)
             schema_instance = getattr(model_self, SCHEMA_ATTRNAME)(
-                *args, strict=strict, **kwargs)
+                *args, **kwargs)
             return schema_instance.dump(model_self)
 
         def model_load(cls, data, *args, **kwargs):
             strict = kwargs.pop('strict', True)
             schema_instance = getattr(cls, SCHEMA_ATTRNAME)(
-                *args, strict=strict, **kwargs)
+                *args, **kwargs)
             return schema_instance.load(data)
 
         model_cls.dump = model_dump
@@ -403,7 +402,7 @@ def validate_field(attr, validator, validate_child=True):
         schema_cls = getattr(model_cls, SCHEMA_ATTRNAME)
         field = schema_cls._declared_fields[attr]
         if isinstance(field, FieldList) and validate_child:
-            field.container.validators.append(validator)
+            field.validators.append(validator)
         else:
             field.validators.append(validator)
 
